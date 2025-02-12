@@ -6,8 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.sound.midi.SysexMessage;
+
 public class Lox {
+    private static final Interpreter interpreter = new Interpreter();
     private static boolean errorOccurred = false;
+    private static boolean runtimeErrorOccurred = false;
     public static void main(String[] args) throws IOException{
         if(args.length > 1){
             System.out.println("Usage: jlox [script]");
@@ -21,6 +25,7 @@ public class Lox {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
         if(errorOccurred) System.exit(65);
+        if(runtimeErrorOccurred) System.exit(70);
     }
 
     private static void runPrompt() throws IOException{
@@ -41,7 +46,7 @@ public class Lox {
         Parser parser = new Parser(tokens);
         Expr expr = parser.parse();
         if(errorOccurred) return;
-        System.out.println(new AstPrinter().print(expr));
+        interpreter.interpret(expr);
     }
     
     static void error(int ln, String msg){
@@ -57,5 +62,9 @@ public class Lox {
     static void error(Token token, String msg){
         if(token.type == TokenType.EOF) report(token.ln, " at end", msg);
         else report(token.ln, " at '" + token.lexeme + "'", msg);
+    }
+    static void runtimeError(RuntimeError e){
+       System.err.println(e.getMessage() + "\n[line " + e.token.ln + "]");
+       runtimeErrorOccurred = true;
     }
 }
