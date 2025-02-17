@@ -1,12 +1,14 @@
-public class Interpreter implements Expr.Visitor<Object> {
-    public void interpret(Expr expr){
+import java.util.List;
+
+public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    public void interpret(List<Stmt> statements){
         try{
-            Object val = eval(expr);
-            System.out.println(stringify(val));
+            for(Stmt stmt: statements) exec(stmt);
         } catch(RuntimeError e){
             Lox.runtimeError(e);
         }
     }
+    //implementing Expr visitor
     @Override
     public Object visitLiteralExpr(Expr.Literal expr){
         return expr.val;
@@ -65,7 +67,7 @@ public class Interpreter implements Expr.Visitor<Object> {
         return null;
     }
     private Object eval(Expr expr){
-        return expr.accept(this);
+        return expr.accept(this); 
     }
     private boolean isTruthy(Object obj){
         if(obj == null) return false;
@@ -93,5 +95,20 @@ public class Interpreter implements Expr.Visitor<Object> {
             return txt; 
         }
         return obj.toString();
+    }
+    private void exec(Stmt stmt){
+        stmt.accept(this);
+    }
+    //implementing Stmt visitor
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt){
+        eval(stmt.expr);
+        return null;
+    }
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt){
+        Object val = eval(stmt.expr);
+        System.out.println(stringify(val));
+        return null;
     }
 }

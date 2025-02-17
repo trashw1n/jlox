@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import javax.sound.midi.SysexMessage;
-
 public class Lox {
     private static final Interpreter interpreter = new Interpreter();
     private static boolean errorOccurred = false;
@@ -44,9 +42,9 @@ public class Lox {
         Scanner sc = new Scanner(src);
         List<Token> tokens = sc.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expr = parser.parse();
+        List<Stmt> statements = parser.parse();
         if(errorOccurred) return;
-        interpreter.interpret(expr);
+        interpreter.interpret(statements);
     }
     
     static void error(int ln, String msg){
