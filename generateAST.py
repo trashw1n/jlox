@@ -6,7 +6,16 @@ ExprTypes = {
     "Binary": "Expr l, Token op, Expr r",
     "Grouping": "Expr expr",
     "Literal": "Object val",
-    "Unary": "Token op, Expr r"
+    "Unary": "Token op, Expr r",
+    "Variable": "Token name"
+}
+
+StmtBase = "Stmt"
+StmtPath = outputDir + "/" + StmtBase + ".java"
+StmtTypes = {
+    "Expression": "Expr expr",
+    "Print": "Expr expr",
+    "Var": "Token name, Expr initializer"
 }
 
 def defineClass(base, path, types):
@@ -43,13 +52,5 @@ def defineClass(base, path, types):
             out.write("\t}\n")
         out.write("}")
 
-#defineClass(ExprBase, ExprPath, ExprTypes)   
-
-StmtBase = "Stmt"
-StmtPath = outputDir + "/" + StmtBase + ".java"
-StmtTypes = {
-    "Expression": "Expr expr",
-    "Print": "Expr expr"
-}
-
+defineClass(ExprBase, ExprPath, ExprTypes)   
 defineClass(StmtBase, StmtPath, StmtTypes)
