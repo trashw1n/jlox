@@ -71,6 +71,12 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitVariableExpr(Expr.Variable expr){
         return env.get(expr.name);
     }
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr){
+        Object val = eval(expr.value);
+        env.assign(expr.name, val);
+        return val;
+    }
     private Object eval(Expr expr){
         return expr.accept(this); 
     }

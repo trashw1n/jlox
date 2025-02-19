@@ -53,9 +53,23 @@ public class Parser {
         return new Stmt.Expression(expr);
     }
     private Expr expression(){
-        return equality();
+        return assignment();
     }
-    private Expr equality(){
+    private Expr assignment(){
+        Expr lval = equality();
+        if(match(TokenType.EQUAL)){
+            Token equals = previous();
+            Expr rval = assignment();
+            if(lval instanceof Expr.Variable){
+                Token name = ((Expr.Variable)lval).name;
+                return new Expr.Assign(name, rval);
+            }
+            error(equals, "Invalid assignment target.");    
+        }
+        //return parsed non-assignment expression
+        return lval;
+    }
+    private Expr equality(){ 
         Expr expr = comparison();
         while(match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)){
             Token op = previous();

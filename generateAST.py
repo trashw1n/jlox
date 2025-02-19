@@ -3,6 +3,7 @@ outputDir = "C:/jlox"
 ExprBase = "Expr"
 ExprPath = outputDir + "/" + ExprBase + ".java"
 ExprTypes = {
+    "Assign": "Token name, Expr value",
     "Binary": "Expr l, Token op, Expr r",
     "Grouping": "Expr expr",
     "Literal": "Object val",
