@@ -14,6 +14,7 @@ ExprTypes = {
 StmtBase = "Stmt"
 StmtPath = outputDir + "/" + StmtBase + ".java"
 StmtTypes = {
+    "Block": "List<Stmt> statements",
     "Expression": "Expr expr",
     "Print": "Expr expr",
     "Var": "Token name, Expr initializer"

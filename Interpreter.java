@@ -77,6 +77,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         env.assign(expr.name, val);
         return val;
     }
+    //util
     private Object eval(Expr expr){
         return expr.accept(this); 
     }
@@ -110,6 +111,15 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     private void exec(Stmt stmt){
         stmt.accept(this);
     }
+    void execBlock(List<Stmt> statements, Environment env){
+        Environment prev = this.env;
+        try{
+            this.env = env;
+            for(Stmt stmt: statements) exec(stmt);
+        } finally{
+            this.env = prev;
+        }
+    }
     //implementing Stmt visitor
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt){
@@ -129,5 +139,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         env.define(stmt.name.lexeme, val);
         return null;
     }
-
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt){
+        execBlock(stmt.statements, new Environment(env));
+        return null;
+    }
 }
