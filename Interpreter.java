@@ -144,4 +144,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         execBlock(stmt.statements, new Environment(env));
         return null;
     }
+    @Override 
+    public Void visitIfStmt(Stmt.If stmt){
+        if(isTruthy(eval(stmt.condition))) exec(stmt.thenBranch);
+        else if(stmt.elseBranch != null) exec(stmt.elseBranch);
+        return null;
+    }
 }
