@@ -15,6 +15,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return expr.val;
     }
     @Override
+    public Object visitLogicalExpr(Expr.Logical expr){
+        Object l = eval(expr.l);
+        //short-circuiting 
+        if(expr.op.type == TokenType.OR){
+            if(isTruthy(l)) return l;
+        } else{
+            if(!isTruthy(l)) return l;
+        }
+        return eval(expr.r);
+    }
+    @Override
     public Object visitGroupingExpr(Expr.Grouping expr){
         return eval(expr.expr);
     }

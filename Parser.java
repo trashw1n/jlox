@@ -72,7 +72,7 @@ public class Parser {
         return assignment();
     }
     private Expr assignment(){
-        Expr lval = equality();
+        Expr lval = or();
         if(match(TokenType.EQUAL)){
             Token equals = previous();
             Expr rval = assignment();
@@ -84,6 +84,24 @@ public class Parser {
         }
         //return parsed non-assignment expression
         return lval;
+    }
+    private Expr or(){
+        Expr l = and();
+        while(match(TokenType.OR)){
+            Token op = previous();
+            Expr r = and();
+            l = new Expr.Logical(l, op, r);
+        }
+        return l;
+    }
+    private Expr and(){
+        Expr l = equality();
+        while(match(TokenType.AND)){
+            Token op = previous();
+            Expr r = equality();
+            l = new Expr.Logical(l, op, r);
+        }
+        return l;
     }
     private Expr equality(){ 
         Expr expr = comparison();
