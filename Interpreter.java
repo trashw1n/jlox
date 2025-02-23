@@ -161,4 +161,9 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         else if(stmt.elseBranch != null) exec(stmt.elseBranch);
         return null;
     }
+    @Override
+    public Void visitWhileStmt(Stmt.While stmt){
+        while(isTruthy(eval(stmt.condition))) exec(stmt.body);
+        return null;
+    }
 }

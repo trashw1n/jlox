@@ -7,6 +7,7 @@ ExprTypes = {
     "Binary": "Expr l, Token op, Expr r",
     "Grouping": "Expr expr",
     "Literal": "Object val",
+    "Logical": "Expr l, Token op, Expr r",
     "Unary": "Token op, Expr r",
     "Variable": "Token name"
 }
@@ -18,7 +19,8 @@ StmtTypes = {
     "Expression": "Expr expr",
     "If": "Expr condition, Stmt thenBranch, Stmt elseBranch",
     "Print": "Expr expr",
-    "Var": "Token name, Expr initializer"
+    "Var": "Token name, Expr initializer",
+    "While": "Expr condition, Stmt body"
 }
 
 def defineClass(base, path, types):
