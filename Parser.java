@@ -25,6 +25,7 @@ public class Parser {
     }
     private Stmt declaration(){
         try{
+            if(match(TokenType.FUN)) return function("function");
             if(match(TokenType.VAR)) return varDeclaration();
             return statement();
         } catch(ParseError e){
@@ -103,6 +104,23 @@ public class Parser {
         consume(TokenType.SEMICOLON, "Expected ';' after expression.");
         return new Stmt.Expression(expr);
     }
+    private Stmt function(String kind){
+        Token name = consume(TokenType.IDENTIFIER, "Expected " + kind + " name.");
+        consume(TokenType.LEFT_PAREN, "Expected '(' after " + kind + " name.");
+        List<Token> params = new ArrayList<>();
+        if(!check(TokenType.RIGHT_PAREN)){
+            do{
+                if(params.size() >= 255){
+                    error(peek(), "Cant have more than 255 parameters.");
+                }
+                params.add(consume(TokenType.IDENTIFIER, "Expected parameter name."));
+            } while(match(TokenType.COMMA));
+        }
+        consume(TokenType.RIGHT_PAREN, "Expected closing ')' after parameters.");
+        consume(TokenType.LEFT_BRACE, "Expected '{' before " + kind + " body.");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, params, body);
+    }
     private Expr expression(){
         return assignment();
     }
@@ -180,7 +198,26 @@ public class Parser {
             Expr r = unary();
             return new Expr.Unary(op, r);
         }
-        return primary();
+        return call();
+    }
+    private Expr call(){
+        Expr expr = primary();
+        while(true){
+            if(match(TokenType.LEFT_PAREN)) expr = finishCall(expr);
+            else break;
+        }
+        return expr;
+    }
+    private Expr finishCall(Expr callee){
+        List<Expr> args = new ArrayList<>();        
+        if(!check(TokenType.RIGHT_PAREN)){
+            do{
+                if(args.size() >= 255) error(peek(), "Cant have more than 255 arguments.");
+                args.add(expression());
+            } while(match(TokenType.COMMA));
+        }
+        Token paren = consume(TokenType.RIGHT_PAREN, "Expected closing ')' after arguments.");
+        return new Expr.Call(callee, paren, args);
     }
     private Expr primary(){
         if(match(TokenType.FALSE)) return new Expr.Literal(false);

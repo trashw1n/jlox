@@ -9,7 +9,8 @@ ExprTypes = {
     "Literal": "Object val",
     "Logical": "Expr l, Token op, Expr r",
     "Unary": "Token op, Expr r",
-    "Variable": "Token name"
+    "Variable": "Token name",
+    "Call": "Expr callee, Token paren, List<Expr> arguments"
 }
 
 StmtBase = "Stmt"
@@ -17,6 +18,7 @@ StmtPath = outputDir + "/" + StmtBase + ".java"
 StmtTypes = {
     "Block": "List<Stmt> statements",
     "Expression": "Expr expr",
+    "Function": "Token name, List<Token> params, List<Stmt> body",
     "If": "Expr condition, Stmt thenBranch, Stmt elseBranch",
     "Print": "Expr expr",
     "Var": "Token name, Expr initializer",
