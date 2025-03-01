@@ -45,8 +45,16 @@ public class Parser {
         if(match(TokenType.IF)) return ifStatement();
         if(match(TokenType.WHILE)) return whileStatement();
         if(match(TokenType.PRINT)) return printStatement();
+        if(match(TokenType.RETURN)) return returnStatement();
         if(match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
+    }
+    private Stmt returnStatement(){
+        Token keyword = previous();
+        Expr val = null;
+        if(!check(TokenType.SEMICOLON)) val = expression();
+        consume(TokenType.SEMICOLON, "Expected ';' after return value.");
+        return new Stmt.Return(keyword, val);
     }
     private Stmt forStatement(){
         consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");

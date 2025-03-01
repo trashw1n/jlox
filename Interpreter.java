@@ -205,4 +205,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         env.define(stmt.name.lexeme, fn);
         return null;
     }
+    @Override
+    public Void visitReturnStmt(Stmt.Return stmt){
+        Object val = null;
+        if(stmt.value != null) val = eval(stmt.value);
+        //using this as a control flow construct.
+        throw new Return(val);
+    }
 }
