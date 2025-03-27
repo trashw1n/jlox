@@ -1,7 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+    private final Map<Expr, Integer> locals = new HashMap<>();
     final Environment globals = new Environment();
     private Environment env = globals;
     Interpreter(){
@@ -98,12 +101,16 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Object visitVariableExpr(Expr.Variable expr){
-        return env.get(expr.name);
+        //return env.get(expr.name);
+        return lookupVariable(expr.name, expr);
     }
     @Override
     public Object visitAssignExpr(Expr.Assign expr){
         Object val = eval(expr.value);
-        env.assign(expr.name, val);
+        // env.assign(expr.name, val);
+        Integer dist = locals.get(expr);
+        if(dist != null) env.assignAt(dist, expr.name, val);
+        else globals.assign(expr.name, val);
         return val;
     }
     @Override
@@ -164,6 +171,11 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             this.env = prev;
         }
     }
+    private Object lookupVariable(Token name, Expr expr){
+        Integer dist = locals.get(expr);
+        if(dist != null) return env.getAt(dist, name.lexeme);
+        else return globals.get(name);
+    }
     //implementing Stmt visitor
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt){
@@ -211,5 +223,8 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if(stmt.value != null) val = eval(stmt.value);
         //using this as a control flow construct.
         throw new Return(val);
+    }
+    void resolve(Expr expr, int depth){
+        locals.put(expr, depth);
     }
 }
