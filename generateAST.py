@@ -22,7 +22,7 @@ StmtTypes = {
     "If": "Expr condition, Stmt thenBranch, Stmt elseBranch",
     "Print": "Expr expr",
     "Return": "Token keyword, Expr value",
-    "Var": "Token name, Expr initializer",
+    "Var": "Token name , Expr initializer",
     "While": "Expr condition, Stmt body"
 }
 

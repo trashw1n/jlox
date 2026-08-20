@@ -34,7 +34,7 @@ public class Parser {
         }
     }
     private Stmt varDeclaration(){
-        Token name = consume(TokenType.IDENTIFIER, "Exprected variable name.");
+        Token name = consume(TokenType.IDENTIFIER, "Expected variable name.");
         Expr initializer = null;
         if(match(TokenType.EQUAL)) initializer = expression();
         consume(TokenType.SEMICOLON, "Expected ';' after variable declaration.");
@@ -67,8 +67,9 @@ public class Parser {
         consume(TokenType.SEMICOLON, "Expected ';' after loop condition");
         Expr increment = null;
         if(!check(TokenType.RIGHT_PAREN)) increment = expression();
-        consume(TokenType.RIGHT_PAREN, "Expected closing ')' after 'for' clauses.");
+        consume(TokenType.RIGHT_PAREN, "Expected closing ')' after 'for' clause.");
         Stmt body = statement();
+        //desugared for-loop: initializer -> (while-loop body -> increment)
         if(increment != null){
             body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
         }

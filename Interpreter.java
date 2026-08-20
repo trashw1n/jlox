@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private final Map<Expr, Integer> locals = new HashMap<>();
+    //stores static resolution results: number of environment jumps  
+    private final Map<Expr, Integer> locals = new HashMap<>();  
     final Environment globals = new Environment();
     private Environment env = globals;
     Interpreter(){
@@ -55,7 +56,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object r = eval(expr.r);
         switch(expr.op.type){
             case BANG:
-                return isTruthy(r);
+                return !isTruthy(r);
             case MINUS:
                 checkNumberOperand(expr.op, r);
                 return -(double)r;
@@ -87,6 +88,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 throw new RuntimeError(expr.op, "Both operands must be two numbers or two strings.");
             case SLASH:
                 checkNumberOperands(expr.op, l, r);
+                if((double)r == 0) throw new RuntimeError(expr.op, "Cannot divide by Zero.");
                 return (double)l / (double)r;
             case STAR:
                 checkNumberOperands(expr.op, l, r);
@@ -111,17 +113,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Integer dist = locals.get(expr);
         if(dist != null) env.assignAt(dist, expr.name, val);
         else globals.assign(expr.name, val);
-        return val;
+         return val;
     }
     @Override
     public Object visitCallExpr(Expr.Call expr){
         Object callee = eval(expr.callee);
-        List<Object> args = new ArrayList<>();
-        for(Expr arg: expr.arguments) args.add(eval(arg));
         if(!(callee instanceof LoxCallable)){
             throw new RuntimeError(expr.paren, "Can only call functions and classes.");
         }
         LoxCallable fn = (LoxCallable)callee;
+        List<Object> args = new ArrayList<>();
+        for(Expr arg: expr.arguments) args.add(eval(arg));
         if(args.size() != fn.arity()){
             throw new RuntimeError(expr.paren, "Expected " + fn.arity() + " arguments but got " +
                 args.size() + ".");

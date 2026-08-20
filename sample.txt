@@ -1,0 +1,6 @@
+var a = 5;
+fun test(a){
+    print a;
+}
+
+test(4);

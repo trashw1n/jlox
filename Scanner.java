@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Scanner {
-    private static final Map<String, TokenType> keywords;
+    private static final Map<String, TokenType> keywords; //keyword lexeme -> type
     static {
         keywords = new HashMap<>();
         keywords.put("and", TokenType.AND);
@@ -115,7 +115,7 @@ public class Scanner {
             Lox.error(ln, "Unterminated string.");
             return;
         }
-        advance();
+        advance();  //consuming the closing quote
         String val = src.substring(start+1, curr-1);
         addToken(TokenType.STRING, val);
     }
@@ -126,6 +126,7 @@ public class Scanner {
 
     private void number(){
         while(isDigit(peek())) advance();
+        //looking for the fractional part
         if(peek() == '.' && isDigit(peekNext())){
             advance();
             while(isDigit(peek())) advance();
@@ -153,6 +154,4 @@ public class Scanner {
         if(type == null) type = TokenType.IDENTIFIER;
         addToken(type);
     }
-
-
 }

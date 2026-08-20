@@ -4,8 +4,13 @@ import java.util.Map;
 import java.util.Stack;
 
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
+    private enum FunctionType{
+        NONE, 
+        FUNCTION
+    }
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
+    private FunctionType currFn = FunctionType.NONE; 
     Resolver(Interpreter interpreter){
         this.interpreter = interpreter;
     }
@@ -27,7 +32,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     public Void visitFunctionStmt(Stmt.Function stmt){
         declare(stmt.name);
         define(stmt.name);
-        resolveFunction(stmt);
+        resolveFunction(stmt, FunctionType.FUNCTION);
         return null;
     }
     @Override
@@ -49,6 +54,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt){
+        if(currFn == FunctionType.NONE){
+            Lox.error(stmt.keyword, "Cant return from top-level code.");
+        }
         if(stmt.value != null) resolve(stmt.value);
         return null;
     }
@@ -115,7 +123,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     private void resolve(Expr expr){
         expr.accept(this);
     }
-    private void resolveFunction(Stmt.Function fn){
+    private void resolveFunction(Stmt.Function fn, FunctionType type){
+        FunctionType enclosingFn = currFn;
+        currFn = type;
         beginScope();
         for(Token param: fn.params){
             declare(param);
@@ -123,6 +133,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         }
         resolve(fn.body);
         endScope();
+        currFn = enclosingFn;
     }
     private void beginScope(){
         scopes.push(new HashMap<String, Boolean>());
@@ -132,6 +143,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     }
     private void declare(Token name){
         if(scopes.isEmpty()) return;
+        if(scopes.peek().containsKey(name.lexeme)){
+            Lox.error(name, "Cannot redeclare multiple variables with same name in the scope.");
+        }
         scopes.peek().put(name.lexeme, false);
     }
     private void define(Token name){
