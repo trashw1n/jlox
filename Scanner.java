@@ -23,6 +23,8 @@ public class Scanner {
         keywords.put("true", TokenType.TRUE);
         keywords.put("var", TokenType.VAR);
         keywords.put("while", TokenType.WHILE);
+        keywords.put("break", TokenType.BREAK);
+        keywords.put("continue", TokenType.CONTINUE);
     }
     private final String src;
     private final List<Token> tokens = new ArrayList<>();

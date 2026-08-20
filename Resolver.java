@@ -53,6 +53,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         return null;
     }
     @Override
+    public Void visitBreakStmt(Stmt.Break stmt){
+        return null;
+    }
+    @Override
+    public Void visitContinueStmt(Stmt.Continue stmt){
+        return null;
+    }
+    @Override
     public Void visitReturnStmt(Stmt.Return stmt){
         if(currFn == FunctionType.NONE){
             Lox.error(stmt.keyword, "Cant return from top-level code.");

@@ -210,7 +210,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitWhileStmt(Stmt.While stmt){
-        while(isTruthy(eval(stmt.condition))) exec(stmt.body);
+        while(isTruthy(eval(stmt.condition))){
+            try{
+                exec(stmt.body);
+            }
+            catch(Break b){
+                break;
+            }
+            catch(Continue c){
+                continue;
+            }
+        }
         return null;
     }
     @Override
@@ -225,6 +235,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if(stmt.value != null) val = eval(stmt.value);
         //using this as a control flow construct.
         throw new Return(val);
+    }
+    @Override
+    public Void visitBreakStmt(Stmt.Break stmt){
+        throw new Break();
+    }
+    public Void visitContinueStmt(Stmt.Continue stmt){
+        throw new Continue();
     }
     void resolve(Expr expr, int depth){
         locals.put(expr, depth);

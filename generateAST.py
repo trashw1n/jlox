@@ -23,7 +23,9 @@ StmtTypes = {
     "Print": "Expr expr",
     "Return": "Token keyword, Expr value",
     "Var": "Token name , Expr initializer",
-    "While": "Expr condition, Stmt body"
+    "While": "Expr condition, Stmt body",
+    "Break": "Token name",
+    "Continue": "Token keyword"
 }
 
 def defineClass(base, path, types):

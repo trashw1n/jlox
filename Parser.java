@@ -47,8 +47,18 @@ public class Parser {
         if(match(TokenType.PRINT)) return printStatement();
         if(match(TokenType.RETURN)) return returnStatement();
         if(match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
+        if(match(TokenType.BREAK)) return breakStatement();
+        if(match(TokenType.CONTINUE)) return continueStatement();
         return expressionStatement();
     }
+    private Stmt breakStatement(){
+        consume(TokenType.SEMICOLON, "Expected ';' after break statement.");
+        return new Stmt.Break(previous());
+    }
+    private Stmt continueStatement(){
+        consume(TokenType.SEMICOLON, "Expected ';' after break statement.");
+        return new Stmt.Break(previous());
+    }   
     private Stmt returnStatement(){
         Token keyword = previous();
         Expr val = null;
