@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Stack;
 
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
-    private enum FunctionType{
+    private enum FunctionType{ 
         NONE, 
         FUNCTION
     }
@@ -20,6 +20,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         beginScope();
         resolve(stmt.statements);
         endScope();
+        return null;
+    }
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt){
+        declare(stmt.name);
+        define(stmt.name);
         return null;
     }
     @Override
@@ -91,6 +97,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
             Lox.error(expr.name, "Can't read local variable in its own initializer");
         } 
         resolveLocal(expr, expr.name);
+        return null;
+    }
+    @Override
+    public Void visitGetExpr(Expr.Get expr){
+        //resolve just the target object/LHS of property getters since actual properties are looked up at runtime.
+        resolve(expr.object); 
+        return null;
+    }
+    @Override
+    public Void visitSetExpr(Expr.Set expr){
+        //resolve just the 'getter' part and the r-value part of property setting/assigment.
+        resolve(expr.value);
+        resolve(expr.object);
         return null;
     }
     @Override

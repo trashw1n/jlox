@@ -1,0 +1,24 @@
+import java.util.Map;
+import java.util.List;
+
+public class LoxClass implements LoxCallable{
+    final String name;
+    
+    LoxClass(String name){
+        this.name = name;
+    }
+
+    @Override
+    public Object call(Interpreter interpreter, List<Object> arguments){
+        LoxInstance inst = new LoxInstance(this);
+        return inst;
+    }
+    @Override
+    public int arity(){
+        return 0;
+    }
+    @Override 
+    public String toString(){
+        return "<class " + name + ">";
+    }
+}

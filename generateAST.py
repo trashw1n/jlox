@@ -10,7 +10,9 @@ ExprTypes = {
     "Logical": "Expr l, Token op, Expr r",
     "Unary": "Token op, Expr r",
     "Variable": "Token name",
-    "Call": "Expr callee, Token paren, List<Expr> arguments"
+    "Call": "Expr callee, Token paren, List<Expr> arguments",
+    "Get": "Expr object, Token name",
+    "Set": "Expr object, Token name, Expr value"
 }
 
 StmtBase = "Stmt"
@@ -25,7 +27,8 @@ StmtTypes = {
     "Var": "Token name , Expr initializer",
     "While": "Expr condition, Stmt body",
     "Break": "Token keyword",
-    "Continue": "Token keyword"
+    "Continue": "Token keyword",
+    "Class": "Token name, List<Stmt.Function> methods"
 }
 
 def defineClass(base, path, types):

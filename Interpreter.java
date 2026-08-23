@@ -130,6 +130,23 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         return fn.call(this, args);
     }
+    @Override
+    public Object visitGetExpr(Expr.Get expr){
+        Object object = eval(expr.object);
+        if(object instanceof LoxInstance) return ((LoxInstance)object).get(expr.name);
+        throw new RuntimeError(expr.name, "Only instances have properties.");
+    }
+    @Override
+    public Object visitSetExpr(Expr.Set expr){
+        Object object = eval(expr.object);
+        if(!(object instanceof LoxInstance)){
+            throw new RuntimeError(expr.name, "Only instances have fields.");
+        }
+        Object val = eval(expr.value);
+        ((LoxInstance)object).set(expr.name, val);
+        return val;
+    }
+
     //util
     private Object eval(Expr expr){
         return expr.accept(this); 
@@ -188,6 +205,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitPrintStmt(Stmt.Print stmt){
         Object val = eval(stmt.expr);
         System.out.println(stringify(val));
+        return null;
+    }
+    @Override
+    public Void visitClassStmt(Stmt.Class stmt){
+        env.define(stmt.name.lexeme, null);
+        LoxClass cl = new LoxClass(stmt.name.lexeme);
+        env.assign(stmt.name, cl);
         return null;
     }
     @Override

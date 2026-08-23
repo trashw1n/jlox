@@ -25,6 +25,7 @@ public class Parser {
     }
     private Stmt declaration(){
         try{
+            if(match(TokenType.CLASS)) return classDeclaration();
             if(match(TokenType.FUN)) return function("function");
             if(match(TokenType.VAR)) return varDeclaration();
             return statement();
@@ -32,6 +33,14 @@ public class Parser {
             synchronize();
             return null;
         }
+    }
+    private Stmt classDeclaration(){
+        Token name = consume(TokenType.IDENTIFIER, "Expect class name.");
+        consume(TokenType.LEFT_BRACE, "Expect opening '{' before class body.");
+        List<Stmt.Function> methods = new ArrayList<>();
+        while(!check(TokenType.RIGHT_BRACE) && !isAtEnd()) methods.add(function("method"));
+        consume(TokenType.RIGHT_BRACE, "Expect closing '}' after class body.");
+        return new Stmt.Class(name, methods);
     }
     private Stmt varDeclaration(){
         Token name = consume(TokenType.IDENTIFIER, "Expected variable name.");
@@ -125,7 +134,7 @@ public class Parser {
         consume(TokenType.SEMICOLON, "Expected ';' after expression.");
         return new Stmt.Expression(expr);
     }
-    private Stmt function(String kind){
+    private Stmt.Function function(String kind){
         Token name = consume(TokenType.IDENTIFIER, "Expected " + kind + " name.");
         consume(TokenType.LEFT_PAREN, "Expected '(' after " + kind + " name.");
         List<Token> params = new ArrayList<>();
@@ -150,9 +159,12 @@ public class Parser {
         if(match(TokenType.EQUAL)){
             Token equals = previous();
             Expr rval = assignment();
-            if(lval instanceof Expr.Variable){
+            if(lval instanceof Expr.Variable){           //variable assignment syntax 
                 Token name = ((Expr.Variable)lval).name;
                 return new Expr.Assign(name, rval);
+            } else if(lval instanceof Expr.Get){         //object property assignment syntax
+                Expr.Get get = (Expr.Get)lval;
+                return new Expr.Set(get.object, get.name, rval);
             }
             error(equals, "Invalid assignment target.");    
         }
@@ -224,7 +236,13 @@ public class Parser {
     private Expr call(){
         Expr expr = primary();
         while(true){
-            if(match(TokenType.LEFT_PAREN)) expr = finishCall(expr);
+            //function call
+            if(match(TokenType.LEFT_PAREN)) expr = finishCall(expr); 
+            //instance property access
+            else if(match(TokenType.DOT)){
+                Token name = consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new Expr.Get(expr, name);
+            }
             else break;
         }
         return expr;
