@@ -108,14 +108,14 @@ abstract class Stmt{
 		final Stmt body;
 	}
 	static class Break extends Stmt{
-		Break(Token name){
-			this.name = name;
+		Break(Token keyword){
+			this.keyword = keyword;
 		}
 		@Override
 		<R> R accept(Visitor<R> visitor){
 			return visitor.visitBreakStmt(this);
 		}
-		final Token name;
+		final Token keyword;
 	}
 	static class Continue extends Stmt{
 		Continue(Token keyword){

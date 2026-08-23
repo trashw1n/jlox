@@ -8,6 +8,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         NONE, 
         FUNCTION
     }
+    private Boolean withinLoop = false;
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
     private FunctionType currFn = FunctionType.NONE; 
@@ -54,26 +55,36 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     }
     @Override
     public Void visitBreakStmt(Stmt.Break stmt){
+        if(!withinLoop){
+            Lox.error(stmt.keyword, "Cannot use 'break' outside loops.");
+        }
         return null;
     }
     @Override
     public Void visitContinueStmt(Stmt.Continue stmt){
+        if(!withinLoop){
+            Lox.error(stmt.keyword, "Cannot use 'continue' outside loops.");
+        }
         return null;
     }
     @Override
     public Void visitReturnStmt(Stmt.Return stmt){
         if(currFn == FunctionType.NONE){
-            Lox.error(stmt.keyword, "Cant return from top-level code.");
+            Lox.error(stmt.keyword, "Cannot return from top-level code.");
         }
         if(stmt.value != null) resolve(stmt.value);
         return null;
     }
     @Override
     public Void visitWhileStmt(Stmt.While stmt){
+        Boolean enclosingWithinLoop = withinLoop;
+        withinLoop = true;
         resolve(stmt.condition);
         resolve(stmt.body);
+        withinLoop = enclosingWithinLoop;
         return null;
     }
+
     @Override
     public Void visitVariableExpr(Expr.Variable expr){
         if(!scopes.isEmpty() && scopes.peek().get(expr.name.lexeme) == Boolean.FALSE){

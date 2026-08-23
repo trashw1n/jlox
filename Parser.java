@@ -52,12 +52,14 @@ public class Parser {
         return expressionStatement();
     }
     private Stmt breakStatement(){
-        consume(TokenType.SEMICOLON, "Expected ';' after break statement.");
-        return new Stmt.Break(previous());
+        Token keyword = previous();
+        consume(TokenType.SEMICOLON, "Expected ';' after 'break' statement.");
+        return new Stmt.Break(keyword);
     }
     private Stmt continueStatement(){
-        consume(TokenType.SEMICOLON, "Expected ';' after break statement.");
-        return new Stmt.Break(previous());
+        Token keyword = previous();
+        consume(TokenType.SEMICOLON, "Expected ';' after 'continue' statement.");
+        return new Stmt.Continue(keyword);
     }   
     private Stmt returnStatement(){
         Token keyword = previous();

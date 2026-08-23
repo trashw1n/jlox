@@ -24,7 +24,7 @@ StmtTypes = {
     "Return": "Token keyword, Expr value",
     "Var": "Token name , Expr initializer",
     "While": "Expr condition, Stmt body",
-    "Break": "Token name",
+    "Break": "Token keyword",
     "Continue": "Token keyword"
 }
 
