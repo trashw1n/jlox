@@ -6,7 +6,8 @@ import java.util.Stack;
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     private enum FunctionType{ 
         NONE, 
-        FUNCTION
+        FUNCTION,
+        METHOD
     }
     private Boolean withinLoop = false;
     private final Interpreter interpreter;
@@ -25,6 +26,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     @Override
     public Void visitClassStmt(Stmt.Class stmt){
         declare(stmt.name);
+        for(Stmt.Function method : stmt.methods){
+            resolveFunction(method, FunctionType.METHOD);
+        }
         define(stmt.name);
         return null;
     }

@@ -1,6 +1,16 @@
-var a = 5;
-fun test(a){
-    print a;
+class test{
+    test(){
+        print "testing";
+    }
+
+    a(){
+        print "inside method a()";
+        return;
+    }
 }
 
-test(4);
+test().test();
+
+
+
+ 
