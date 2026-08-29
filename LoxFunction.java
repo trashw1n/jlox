@@ -3,7 +3,9 @@ import java.util.List;
 public class LoxFunction implements LoxCallable {
     private final Stmt.Function declaration;
     private final Environment closure;
-    LoxFunction(Stmt.Function declaration, Environment closure){
+    private Boolean isInitializer;
+    LoxFunction(Stmt.Function declaration, Environment closure, Boolean isInitializer){
+        this.isInitializer = isInitializer;
         this.closure = closure;
         this.declaration = declaration;
     }
@@ -12,7 +14,7 @@ public class LoxFunction implements LoxCallable {
         //fitting in a new environment containing 'this' one step below closure.
         Environment env = new Environment(closure);
         env.define("this", inst);
-        return new LoxFunction(declaration, env);
+        return new LoxFunction(declaration, env, isInitializer);
     }
 
     @Override
@@ -29,9 +31,11 @@ public class LoxFunction implements LoxCallable {
         try{
             interpreter.execBlock(declaration.body, env);
         } catch(Return returnVal){
-            //if some function returns some value deep within the call stack
+            //if some LoxFunction call returns some value deep within the call stack
+            if(isInitializer) return closure.getAt(0, "this"); 
             return returnVal.value;
         }
+        if(isInitializer) return closure.getAt(0, "this");
         return null;
     }
     @Override

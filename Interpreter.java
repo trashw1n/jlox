@@ -216,7 +216,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         env.define(stmt.name.lexeme, null);
         Map<String, LoxFunction> methods = new HashMap<>();
         for(Stmt.Function method : stmt.methods){
-            LoxFunction fn = new LoxFunction(method, env);
+            LoxFunction fn = new LoxFunction(method, env, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, fn);
         }
         LoxClass cl = new LoxClass(stmt.name.lexeme, methods);
@@ -258,7 +258,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt){
-        LoxFunction fn = new LoxFunction(stmt, env);
+        LoxFunction fn = new LoxFunction(stmt, env, false);
         env.define(stmt.name.lexeme, fn);
         return null;
     }

@@ -7,6 +7,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     private enum FunctionType{ 
         NONE, 
         FUNCTION,
+        CONSTRUCTOR,
         METHOD
     }
     private enum ClassType{
@@ -38,7 +39,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         beginScope();
         scopes.peek().put("this", true);
         for(Stmt.Function method : stmt.methods){
-            resolveFunction(method, FunctionType.METHOD);
+            FunctionType type = FunctionType.METHOD;
+            if(method.name.lexeme.equals("init")) type = FunctionType.CONSTRUCTOR; 
+            resolveFunction(method, type);
         }
         endScope();
         currCl = enclosingCl;
@@ -93,6 +96,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     public Void visitReturnStmt(Stmt.Return stmt){
         if(currFn == FunctionType.NONE){
             Lox.error(stmt.keyword, "Cannot return from top-level code.");
+        }
+        if(stmt.value != null && currFn == FunctionType.CONSTRUCTOR){
+            Lox.error(stmt.keyword, "Cannot return values from a instance initializer.");
         }
         if(stmt.value != null) resolve(stmt.value);
         return null;
