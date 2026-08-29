@@ -12,7 +12,8 @@ ExprTypes = {
     "Variable": "Token name",
     "Call": "Expr callee, Token paren, List<Expr> arguments",
     "Get": "Expr object, Token name",
-    "Set": "Expr object, Token name, Expr value"
+    "Set": "Expr object, Token name, Expr value",
+    "This": "Token keyword"
 }
 
 StmtBase = "Stmt"

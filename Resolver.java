@@ -26,10 +26,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     @Override
     public Void visitClassStmt(Stmt.Class stmt){
         declare(stmt.name);
+        define(stmt.name);
+        //resolve 'this' to an implicit block around method definitions
+        beginScope();
+        scopes.peek().put("this", true);
         for(Stmt.Function method : stmt.methods){
             resolveFunction(method, FunctionType.METHOD);
         }
-        define(stmt.name);
+        endScope();
         return null;
     }
     @Override
@@ -147,6 +151,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     public Void visitLogicalExpr(Expr.Logical expr){
         resolve(expr.l);
         resolve(expr.r);
+        return null;
+    }
+    @Override
+    public Void visitThisExpr(Expr.This expr){
+        resolveLocal(expr, expr.keyword);
         return null;
     }
     @Override 

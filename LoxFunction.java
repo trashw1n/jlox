@@ -7,6 +7,14 @@ public class LoxFunction implements LoxCallable {
         this.closure = closure;
         this.declaration = declaration;
     }
+
+    LoxFunction bind(LoxInstance inst){
+        //fitting in a new environment containing 'this' one step below closure.
+        Environment env = new Environment(closure);
+        env.define("this", inst);
+        return new LoxFunction(declaration, env);
+    }
+
     @Override
     public int arity(){
         return declaration.params.size();

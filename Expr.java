@@ -11,6 +11,7 @@ abstract class Expr{
 		R visitCallExpr(Call expr);
 		R visitGetExpr(Get expr);
 		R visitSetExpr(Set expr);
+		R visitThisExpr(This expr);
 	}
 	abstract <R> R accept(Visitor<R> visitor);
 	static class Assign extends Expr{
@@ -134,5 +135,15 @@ abstract class Expr{
 		final Expr object;
 		final Token name;
 		final Expr value;
+	}
+	static class This extends Expr{
+		This(Token keyword){
+			this.keyword = keyword;
+		}
+		@Override
+		<R> R accept(Visitor<R> visitor){
+			return visitor.visitThisExpr(this);
+		}
+		final Token keyword;
 	}
 }

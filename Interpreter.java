@@ -146,6 +146,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         ((LoxInstance)object).set(expr.name, val);
         return val;
     }
+    @Override
+    public Object visitThisExpr(Expr.This expr){
+        return lookupVariable(expr.keyword, expr); //'this' effectively acts like a variable.
+    }
 
     //util
     private Object eval(Expr expr){
