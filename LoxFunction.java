@@ -30,8 +30,7 @@ public class LoxFunction implements LoxCallable {
         }
         try{
             interpreter.execBlock(declaration.body, env);
-        } catch(Return returnVal){
-            //if some LoxFunction call returns some value deep within the call stack
+        } catch(Return returnVal){ //if some LoxFunction call returns some value deep within the call stack
             if(isInitializer) return closure.getAt(0, "this"); 
             return returnVal.value;
         }

@@ -113,7 +113,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Integer dist = locals.get(expr);
         if(dist != null) env.assignAt(dist, expr.name, val);
         else globals.assign(expr.name, val);
-         return val;
+        return val;
     }
     @Override
     public Object visitCallExpr(Expr.Call expr){
@@ -213,13 +213,20 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
     @Override
     public Void visitClassStmt(Stmt.Class stmt){
+        Object superclass = null;
+        if(stmt.superclass != null){
+            superclass = eval(stmt.superclass);
+            if(!(superclass instanceof LoxClass)){
+                throw new RuntimeError(stmt.superclass.name, "Entity being inherited from must be class.");
+            }
+        }
         env.define(stmt.name.lexeme, null);
         Map<String, LoxFunction> methods = new HashMap<>();
         for(Stmt.Function method : stmt.methods){
             LoxFunction fn = new LoxFunction(method, env, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, fn);
         }
-        LoxClass cl = new LoxClass(stmt.name.lexeme, methods);
+        LoxClass cl = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
         env.assign(stmt.name, cl);
         return null;
     }

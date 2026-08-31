@@ -29,7 +29,7 @@ StmtTypes = {
     "While": "Expr condition, Stmt body",
     "Break": "Token keyword",
     "Continue": "Token keyword",
-    "Class": "Token name, List<Stmt.Function> methods"
+    "Class": "Token name, Expr.Variable superclass, List<Stmt.Function> methods"
 }
 
 def defineClass(base, path, types):

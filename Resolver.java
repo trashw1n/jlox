@@ -35,6 +35,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         currCl = ClassType.CLASS;
         declare(stmt.name);
         define(stmt.name);
+        if(stmt.superclass != null && stmt.superclass.name.lexeme.equals(stmt.name.lexeme)){
+            Lox.error(stmt.superclass.name, "A class cannot inherit from itself.");
+        }
+        //storing superclass as Expr.Variable allows us to resolve it here.
+        if(stmt.superclass != null) resolve(stmt.superclass);
         //resolve 'this' to an implicit block around method definitions
         beginScope();
         scopes.peek().put("this", true);
@@ -133,7 +138,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         resolve(expr.value);
         resolve(expr.object);
         return null;
-    }
+    }  
     @Override
     public Void visitAssignExpr(Expr.Assign expr){
         resolve(expr.value);
@@ -218,7 +223,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         scopes.peek().put(name.lexeme, false);
     }
     private void define(Token name){
-        if(scopes.isEmpty()) return;
+        if(scopes.isEmpty()) return; 
         scopes.peek().put(name.lexeme, true);
     }
     private void resolveLocal(Expr expr, Token name){
