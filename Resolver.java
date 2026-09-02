@@ -12,7 +12,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     }
     private enum ClassType{
         NONE,
-        CLASS
+        CLASS,
+        SUBCLASS
     }
     private final Interpreter interpreter;
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
@@ -39,7 +40,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
             Lox.error(stmt.superclass.name, "A class cannot inherit from itself.");
         }
         //storing superclass as Expr.Variable allows us to resolve it here.
-        if(stmt.superclass != null) resolve(stmt.superclass);
+        if(stmt.superclass != null){
+            currCl = ClassType.SUBCLASS;
+            resolve(stmt.superclass);
+            beginScope();  //this scope wraps all the class methods with 'super' defined in it
+            scopes.peek().put("super", true);
+        }
         //resolve 'this' to an implicit block around method definitions
         beginScope();
         scopes.peek().put("this", true);
@@ -49,6 +55,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
             resolveFunction(method, type);
         }
         endScope();
+        if(stmt.superclass != null) endScope();
         currCl = enclosingCl;
         return null;
     }
@@ -177,6 +184,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         if(currCl == ClassType.NONE){
             Lox.error(expr.keyword, "Cannot use 'this' outside classes.");
             return null;
+        }
+        resolveLocal(expr, expr.keyword);
+        return null;
+    }
+    @Override
+    public Void visitSuperExpr(Expr.Super expr){
+        if(currCl == ClassType.NONE){
+            Lox.error(expr.keyword, "Cannot use 'super' outside of a class.");
+        }
+        else if(currCl != ClassType.SUBCLASS){
+            Lox.error(expr.keyword, "Cannot use 'super' in a class with no superclass.");
         }
         resolveLocal(expr, expr.keyword);
         return null;

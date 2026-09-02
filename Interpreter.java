@@ -150,6 +150,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitThisExpr(Expr.This expr){
         return lookupVariable(expr.keyword, expr); //'this' effectively acts like a variable.
     }
+    @Override
+    public Object visitSuperExpr(Expr.Super expr){
+        int dist = locals.get(expr);
+        LoxClass superclass = (LoxClass)env.getAt(dist, "super"); 
+        LoxInstance object = (LoxInstance)env.getAt(dist-1, "this");
+        LoxFunction method = superclass.findMethod(expr.method.lexeme);
+        if(method == null){
+            throw new RuntimeError(expr.method, "Undefined property: '" + expr.method.lexeme + "'.");
+        }
+        return method.bind(object);
+    }
 
     //util
     private Object eval(Expr expr){
@@ -221,12 +232,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             }
         }
         env.define(stmt.name.lexeme, null);
+        if(stmt.superclass != null){
+            env = new Environment(env);
+            env.define("super", superclass); //carried by each method as its closure.
+        }
         Map<String, LoxFunction> methods = new HashMap<>();
         for(Stmt.Function method : stmt.methods){
             LoxFunction fn = new LoxFunction(method, env, method.name.lexeme.equals("init"));
             methods.put(method.name.lexeme, fn);
         }
         LoxClass cl = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
+        if(superclass != null) env = env.enclosing;  //pop the environment in which 'super' is defined.
         env.assign(stmt.name, cl);
         return null;
     }
